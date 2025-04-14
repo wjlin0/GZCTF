@@ -9,9 +9,13 @@ jobs:
     steps:
       - name: Checkout upstream repository
         uses: actions/checkout@v3
+        defaults:
+          run:
+            working-directory: src/GZCTF
         with:
           repository: GZTimeWalker/GZCTF
           ref: main
+        
       - uses: actions/setup-dotnet@v4
         with:
           global-json-file: src/global.json
@@ -84,6 +88,9 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/gzctf:${{ steps.upstream_version.outputs.version }}
             registry.cn-hangzhou.aliyuncs.com/${{ secrets.ALIYUN_NAMESPACE }}/gzctf:latest
             registry.cn-hangzhou.aliyuncs.com/${{ secrets.ALIYUN_NAMESPACE }}/gzctf:${{ steps.upstream_version.outputs.version }}
+
+  
+
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
