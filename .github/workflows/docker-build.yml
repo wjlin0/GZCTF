@@ -6,12 +6,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/GZCTF
     steps:
       - name: Checkout upstream repository
         uses: actions/checkout@v3
-        defaults:
-          run:
-            working-directory: src/GZCTF
         with:
           repository: GZTimeWalker/GZCTF
           ref: main
