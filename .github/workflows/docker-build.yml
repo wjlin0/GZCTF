@@ -66,7 +66,7 @@ jobs:
           body: |
             This is an automated release synchronized with upstream version ${{ steps.upstream_version.outputs.version }}
             Docker images:
-            - GitHub Container Registry: `ghcr.io/${{ github.repository }}:${{ steps.upstream_version.outputs.version }}`
+            - GitHub Container Registry: `ghcr.io/${{ github.repository_owner }}:${{ steps.upstream_version.outputs.version }}`
             - Docker Hub: `${{ secrets.DOCKERHUB_USERNAME }}/gzctf:${{ steps.upstream_version.outputs.version }}`
             - Aliyun Container Registry: `registry.cn-hangzhou.aliyuncs.com/${{ secrets.ALIYUN_NAMESPACE }}/gzctf:${{ steps.upstream_version.outputs.version }}`
         env:
