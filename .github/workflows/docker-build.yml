@@ -31,9 +31,8 @@ jobs:
           dotnet publish "src/GZCTF/GZCTF.csproj" -c Release -o publish/linux/amd64 -r linux-x64 --no-self-contained /p:PublishReadyToRun=true
 
           # ignore arm64 for non-release tags
-          if [ "${{ env.RELEASE }}" = "true" ]; then
-            dotnet publish "src/GZCTF/GZCTF.csproj" -c Release -o publish/linux/arm64 -r linux-arm64 --no-self-contained /p:PublishReadyToRun=true /p:EFOptimizeContext=false
-          fi
+          dotnet publish "src/GZCTF/GZCTF.csproj" -c Release -o publish/linux/arm64 -r linux-arm64 --no-self-contained /p:PublishReadyToRun=true /p:EFOptimizeContext=false
+
         env:
           VITE_APP_BUILD_TIMESTAMP: ${{ steps.datetime.outputs.time }}
           VITE_APP_GIT_SHA: ${{ github.sha }}
