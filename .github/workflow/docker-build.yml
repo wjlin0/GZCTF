@@ -1,0 +1,69 @@
+name: Docker Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout upstream repository
+        uses: actions/checkout@v3
+        with:
+          repository: GZTimeWalker/GZCTF
+          ref: main
+
+      - name: Get upstream version
+        id: upstream_version
+        run: |
+          echo "version=$(curl -s https://api.github.com/repos/GZTimeWalker/GZCTF/releases/latest | jq -r .tag_name)" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: registry.cn-hangzhou.aliyuncs.com
+          username: ${{ secrets.ALIYUN_USERNAME }}
+          password: ${{ secrets.ALIYUN_PASSWORD }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: ./src/GZCTF
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ steps.upstream_version.outputs.version }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/gzctf:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/gzctf:${{ steps.upstream_version.outputs.version }}
+            registry.cn-hangzhou.aliyuncs.com/${{ secrets.ALIYUN_NAMESPACE }}/gzctf:latest
+            registry.cn-hangzhou.aliyuncs.com/${{ secrets.ALIYUN_NAMESPACE }}/gzctf:${{ steps.upstream_version.outputs.version }}
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.upstream_version.outputs.version }}
+          name: Release ${{ steps.upstream_version.outputs.version }}
+          body: |
+            This is an automated release synchronized with upstream version ${{ steps.upstream_version.outputs.version }}
+            Docker images:
+            - GitHub Container Registry: `ghcr.io/${{ github.repository }}:${{ steps.upstream_version.outputs.version }}`
+            - Docker Hub: `${{ secrets.DOCKERHUB_USERNAME }}/gzctf:${{ steps.upstream_version.outputs.version }}`
+            - Aliyun Container Registry: `registry.cn-hangzhou.aliyuncs.com/${{ secrets.ALIYUN_NAMESPACE }}/gzctf:${{ steps.upstream_version.outputs.version }}`
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,39 @@
+name: Check Version
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天运行一次
+  workflow_dispatch:     # 允许手动触发
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Get current version
+        id: current_version
+        run: |
+          echo "version=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r .tag_name)" >> $GITHUB_OUTPUT
+
+      - name: Get upstream version
+        id: upstream_version
+        run: |
+          echo "version=$(curl -s https://api.github.com/repos/GZTimeWalker/GZCTF/releases/latest | jq -r .tag_name)" >> $GITHUB_OUTPUT
+
+      - name: Compare versions
+        id: compare
+        run: |
+          if [ "${{ steps.current_version.outputs.version }}" != "${{ steps.upstream_version.outputs.version }}" ]; then
+            echo "versions_differ=true" >> $GITHUB_OUTPUT
+          else
+            echo "versions_differ=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Trigger docker build
+        if: steps.compare.outputs.versions_differ == 'true'
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: docker-build.yml
+          token: ${{ secrets.GITHUB_TOKEN }}
