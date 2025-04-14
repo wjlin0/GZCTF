@@ -51,8 +51,8 @@ jobs:
           context: ./src/GZCTF
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ steps.upstream_version.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/gzctf:latest
+            ghcr.io/${{ github.repository_owner }}/gzctf:${{ steps.upstream_version.outputs.version }}
             ${{ secrets.DOCKERHUB_USERNAME }}/gzctf:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/gzctf:${{ steps.upstream_version.outputs.version }}
             registry.cn-hangzhou.aliyuncs.com/${{ secrets.ALIYUN_NAMESPACE }}/gzctf:latest
